@@ -2,7 +2,9 @@
 # we decided to use sprites because it has attributes like height, width etc..
 # https://www.geeksforgeeks.org/pygame-creating-sprites/
 
-import pygame, sys, random
+import pygame 
+import sys
+import random
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -16,9 +18,8 @@ obstacle_cooldown = 5000
 obstacle_timer = 0  
 #jump_velocity
 JUMP_VEL = 0
-
-iggy_duck = screen.blit(pygame.image.load("assets/dog/ducking.PNG"))
-iggy_jump_1 = screen.blit(pygame.image.load("assets/leap_1.PNG"))
+#
+#JUMPING = pygame.image.load("assets/leap_1.PNG")
 
 
  
@@ -64,85 +65,90 @@ class Iggy(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         super().__init__()
-
-        #iggy's positions
         self.x = x
         self.y = y
 
-    #creating a list to contains a lion racing images 
-        self.racing_sprites = []
-    #creating a list to containing a lion ducking images 
-        self.iggy_jump_sprites = []
-   
-   #images of iggy racing/ducking using .append(pygame.transform.scale(pygame.image.load(""))) to set and enlarge images of iggy racing/ducking 
-
-        self.racing_sprites.append(pygame.transform.scale(
-            pygame.image.load("assets/Running_1.PNG"), (300, 190)))
-        self.racing_sprites.append(pygame.transform.scale(
-            pygame.image.load("assets/running_2.PNG"), (300, 190)))
-
-        self.iggy_jump_sprites.append(pygame.transform.scale(
-            pygame.image.load("assets/dog/ducking.PNG"), (330, 150)))
-        
+    #creating a list to contain running images 
+        self.running_sprites = []
+    #creating a list to contain jumping images 
+        self.jumping_sprites = []
+    #running images
+        run1_image = pygame.image.load("assets/Running_1.PNG")
+        scale_run1_image = pygame.transform.scale(run1_image,(300, 190))
+        self.running_sprites.append(scale_run1_image) 
+        run2_image = pygame.image.load("assets/running_2.PNG")
+        scale_run2_image = pygame.transform.scale(run2_image,(300, 190))
+        self.running_sprites.append(scale_run2_image)
+    #jumping images
+        jumping1_image = pygame.image.load("assets/leap_1.PNG")
+        scale_jump1_image = pygame.transform.scale(jumping1_image,(300, 190))
+        self.jumping_sprites.append(scale_jump1_image)
+        jumping2_image= pygame.image.load("assets/leap_2.PNG")
+        scale_jump2_image = pygame.transform.scale(jumping2_image,(300, 190))
+        self.jumping_sprites.append(scale_jump2_image)
     #images  
         self.current_image = 0 
-        self.image = self.racing_sprites[self.current_image]
+        self.image = self.running_sprites[self.current_image]
         self.rect = self.image.get_rect(center=(self.x, self.y)) 
 
-        #the gravity attribute monitors when iggy is not on the floor and to bring it back down
-        self.sim_grav = 4.5
 
         self.iggy_jump = False
     #the speed attribute controls the speed of iggy throughout the game 
         self.speed = 50
-
-
-    def jump(self):
-        if self.rect.centery >= 550:
-            while self.rect.centery - self.speed > 40:
-                self.rect.centery -= 1
-
-    #this function updates the images (swapping the image to look like actively racing)
+    #the gravity attribute monitors when iggy is not on the floor and to bring it back down
+        self.gravity = 4.5
+        
+        self.jump_vel = JUMP_VEL
+    #this function updates the images (swapping the image to look like actively running)
     def update(self):
         self.animate()
-        self.apply_gravity()
+        self.simulate_gravity()
     # The animate function is switching between the pictures of Iggy at .05 speed. 
-    # If Iggy is at the second photo, he'll reset back to the first image. Making the racing illusion
+    # If Iggy is at the second photo, he'll reset back to the first image. Making the running illusion
     def animate(self):
         self.current_image += 0.08 
         if self.current_image >= 2:
             self.current_image = 0 
         
-        if self.iggy_jump:
-            self.image = self.racing_sprites[int(self.current_image)]
-        else:
-            self.image = self.racing_sprites[int(self.current_image)]
+        print("image set to " + str(int(self.current_image)))
+        self.image = self.running_sprites[int(self.current_image)]
 
-
-
-      
+        if self.jump_vel > 0:
+            print("image set to up")
+            self.image = self.jumping_sprites[0] 
+        elif self.jump_vel < 0:
+            print("image set to down")
+            self.image = self.jumping_sprites[1]
   
         #self.jump_img = jumping1_image 
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
     
     def simulate_gravity(self):
-        self.iggy_jump = True 
-        self.rect.centery = 550
+        if self.rect.centery <= 500: #anything <500 and he floats; anything >500 and hes in the ground
+            self.rect.centery += self.gravity
 
-    def control_gravity(self):
-        self.iggy_jump = False
-        self.rect.century = 550
+        #adding jump functionality:
+        if self.y > 510:
+            self.y -= self.jump_vel
+            self.jump_vel -= self.gravity
     
- 
-    def apply_gravity(self):
-        if self.rect.centery <= 550:
-            self.rect.centery += self.sim_grav
+    
+        # self.jump_vel = JUMP_VEL
+        # if self.iggy_jump == True:
+        #     self.jump_vel += JUMP_VEL
+
+        
+
+
+        # check if lion is already in the air, and if it is, do not jump
+        #
+
+        
+    
 
     # The kiwi class is the obstacle that the player faces 
     # Similar to the Iggy class we inheret from sprite      
-
-
 class kiwi(pygame.sprite.Sprite):
               
     def __init__(self, x, y):
@@ -173,7 +179,7 @@ lion_group = pygame.sprite.GroupSingle()
 
 #lion object 
 x = 250
-y = 550
+y = 510
 lion = Iggy(x,y)
 lion_group.add(lion)
 # def jump(lion):
@@ -182,15 +188,27 @@ lion_group.add(lion)
 #             lion.rect.centery -= 1
 #             lion = Iggy(250,650)
 
-
 while True:
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_DOWN]:
-        iggy_duck()
-    elif keys == pygame.K_SPACE or keys == pygame.K_UP:
-        iggy_jump_1()
+    
+    for event in pygame.event.get():
+        keys = pygame.key.get_pressed()
+        if event.type == pygame.QUIT:
+            print("quitting")
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+
+            if event.key == pygame.K_UP:
+                print(keys[pygame.K_SPACE])
+                print(keys[pygame.K_UP])
+                if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
+                    print("jumping")
+                    #jump(lion)
+                    lion = Iggy(250,450)
 
     screen.fill("light blue")
+
+
     
 # Collisions 
     game_over = False
@@ -226,7 +244,7 @@ while True:
     obstacle_group.update()
     obstacle_group.draw(screen)
 
-    #game spped should increase as the game goes
+    #game speed should increase as the game goes
     #it will increase everytime this while loop runs
     game_speed += 0.0025
 
@@ -244,6 +262,24 @@ while True:
     score()
     pygame.display.update()
     clock.tick(120)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
