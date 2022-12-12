@@ -10,6 +10,9 @@ screen_y = 720
 screen = pygame.display.set_mode((screen_x, screen_y))
 game_name_display = pygame.display.set_caption("Iggy Runs!!")
 clock = pygame.time.Clock()
+speed_game = 5
+ground_start = 0
+
 
 Running =[]
 run1_image = pygame.image.load("assets/Running_1.PNG")
@@ -20,12 +23,15 @@ run2_image = pygame.image.load("assets/running_2.PNG")
 scale_run2_image = pygame.transform.scale(run2_image,(300, 190))
 Running.append(scale_run2_image)
 
-Jumping = pygame.image.load(os.path.join("assets", "leap_1.PNG"))
 
 Obstacles = [pygame.image.load(os.path.join("assets", "kiki_bots.PNG")),
                 pygame.image.load(os.path.join("assets", "obstacle_1.PNG")),
                 pygame.image.load(os.path.join("assets", "obstacle_2.PNG"))]
-Grass = pygame.image.load(os.path.join("assets", "grass.jpg"))
+Grass = pygame.image.load(os.path.join("assets/grass.jpg"))
+
+game_font = pygame.font.Font("assets/Creampeach.ttf", 24)
+
+
 
 
 
@@ -39,7 +45,6 @@ class Iggy():
     def __init__(self):
         self.iggy_jump = False 
         self.run_img = Running
-        #self.jump_img = Jumping
         self.y = 250
         self.x = 510
         self.gravity = self.GRAVITY 
@@ -58,8 +63,6 @@ class Iggy():
             self.y = 510
             self.x = 250
             self.run()
-        # if self.current_image >= 10:
-        #     self.step_index = 0
 
         self.rect.x = self.x
         self.rect.y = self.y
@@ -86,53 +89,15 @@ class Iggy():
 
 
 
-    # def jump(self):
-    #     #self.image = self.jump_img
-    #     #time.sleep(1)
-    #     self.y -= self.gravity *4
-    #     self.gravity -= 0.8
-    #     #self.iggy_run = False
-    #     print(self.y)
-    #     if self.y == 505:
-    #         self.y += self.gravity *4
-    #         self.gravity += 0.8
-    #         if self.y == 510:
-    #             self.iggy_run = False
-
-
-        # self.y = 800
-        # print(self.y)
-        # time.sleep(3)
-        # self.y = 510
-        # #time.sleep(1)
-        # self.iggy_run = True
-        # self.image = self.jump_img
-        # print(self.y)
-        # self.y -= self.gravity *4
-        # self.gravity -= 0.8
-        
-        # if self.y == 505:
-        #     print("FIRST") 
-        #     self.iggy_jump = False
-        
-
-        #     #self.gravity < -self.Gravity
-        #     self.y += self.gravity *10
-        #     self.gravity += 0.8
-        #     self.y = 510
-        #     #self.iggy_jump = False
-        #     # self.Gravity = self.gravity
-        #     print("come down")
-
-        #     # if self.y == 510:
-        #     #     self.iggy_jump = True
-
-
-            
 
 def main_function(): 
+    global speed_game, ground_start, points 
     player = Iggy()
+    points = 0
+    
+    
 
+    
     #in the while loop we will have all the things that should be runnning 
     #endlessly throughout the game  
     while True:
@@ -150,12 +115,27 @@ def main_function():
         screen.fill("light blue")
         player.display()
         player.update(player_input)
-        pygame.display.update()
+        
+ 
+        ground_rescaled = pygame.transform.scale(Grass, (1280,100))
+        #ground_rect = ground_rescaled.get_rect(center=(640,690))
 
+        speed_game += 0.0025
+
+        ground_start -= speed_game
+ 
+        ground_start -=1
+        screen.blit(ground_rescaled, (ground_start, 645))
+        screen.blit(ground_rescaled, (ground_start + 1280, 645))
+
+        #the if statement keeps the ground running on an infinate loop
+        if ground_start <= -1280:
+            ground_start = 0
+        pygame.display.update()
 
 main_function()
 
         
 
-
-
+#references 
+#https://youtu.be/ST-Qq3WBZBE
