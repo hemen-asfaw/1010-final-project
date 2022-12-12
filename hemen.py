@@ -49,10 +49,8 @@ class Iggy():
 
     #In the update funcion we will put in the different actions of iggy that will change as game goes on 
     def update(self, inputs):
-
-        if inputs.type == pygame.KEYDOWN:
-            if inputs.key == pygame.K_UP or inputs.key == pygame.K_SPACE:
-                self.iggy_jump = True
+        if inputs[pygame.K_SPACE] or inputs[pygame.K_UP]:
+            self.iggy_jump = True
 
         if self.iggy_jump:
             self.jump()
@@ -146,16 +144,12 @@ def main_function():
         
         player_input = pygame.key.get_pressed()
 
-        if player_input[pygame.K_SPACE]:
-            print("pressed")
-            player.iggy_jump = True 
-
         print(player.y)
         print(player.iggy_jump)
 
         screen.fill("light blue")
         player.display()
-        player.update(event)
+        player.update(player_input)
         pygame.display.update()
 
 
