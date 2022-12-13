@@ -12,12 +12,12 @@ screen_y = 720
 screen = pygame.display.set_mode((screen_x, screen_y))
 game_name_display = pygame.display.set_caption("Iggy Runs!!")
 clock = pygame.time.Clock()
-speed_game = 9
+speed_game = 10
 ground_start = 0
 
 
 
-
+# List of images
 Running =[]
 run1_image = pygame.image.load("assets/Running_1.PNG")
 scale_run1_image = pygame.transform.scale(run1_image,(250, 140))
@@ -55,11 +55,9 @@ menu_snd = pygame.mixer.Sound("assets/sounds/intro.wav")
 roar_snd = pygame.mixer.Sound("assets/sounds/roar.wav")
 
 
-
+    # Our Iggy class.
 class Iggy():
-    #we're setting iggy at a stationary position because it does not change its position
-    # x = 250
-    # y = 510 
+    # We're setting iggy at a stationary position because it does not change its position.
     GRAVITY = 10
     
     def __init__(self):
@@ -71,7 +69,7 @@ class Iggy():
         self.current_image = 0 
         self.image = self.run_img[0]
         self.rect = self.image.get_rect(center=(self.x, self.y))
-        # self.set_sound()
+        
 
     #In the update funcion we will put in the different actions of iggy that will change as game goes on 
     def update(self, inputs):
@@ -113,6 +111,7 @@ class Iggy():
             self.iggy_jump = False
             self.gravity = self.GRAVITY
 
+# This class is for our obstacles (books & kiwi)
 class Obstacles():
 
     def __init__(self, type):
@@ -131,20 +130,20 @@ class Obstacles():
     def display(self, screen):
         screen.blit(self.image, self.rect)
 
-
+# Sub classes for obstacles 
 class kiwibot(Obstacles):
     def __init__(self):
         # self.type = OBSTACLES[0]
         super().__init__(0)
         self.rect.y = 550
 
-
+# Sub classes for obstacles 
 class Book(Obstacles):
     def __init__(self): 
         super().__init__(random.randint(1,2))
         self.rect.y = 400
 
-
+# Global variables/obstacle list/death counter 
 def main_function(): 
     global speed_game, ground_start, points 
     player = Iggy()
@@ -154,12 +153,12 @@ def main_function():
 
 
 
-
+# Score for our game (right corner)
     def score():
         global points, speed_game
         points +=1
         if points % 100 == 0 :
-            speed_game += 1   
+            speed_game += 0.75   
         text = game_font.render("Points: "+ str(points), True, (0,0,0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
@@ -168,8 +167,8 @@ def main_function():
     
 
     
-    #in the while loop we will have all the things that should be runnning 
-    #endlessly throughout the game  
+    #In the while loop we will have all the things that should be runnning 
+    #Endlessly throughout the game  
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -217,9 +216,9 @@ def main_function():
 
 
         
- 
+    # The ground image/ game speed 
         ground_rescaled = pygame.transform.scale(Grass, (1280,100))
-           #ground_rect = ground_rescaled.get_rect(center=(640,690))
+           
 
         speed_game += 0.0025
 
@@ -229,7 +228,7 @@ def main_function():
         screen.blit(ground_rescaled, (ground_start, 645))
         screen.blit(ground_rescaled, (ground_start + 1280, 645))
 
-        #the if statement keeps the ground running on an infinate loop
+        #The if statement keeps the ground running on an infinate loop
         if ground_start <= -1280:
             ground_start = 0
         score()
@@ -241,7 +240,7 @@ def main_function():
 
         pygame.display.update()
         
-
+# The function for the menu  
 def menu(demise_counter):
     
     global points 
@@ -253,8 +252,7 @@ def menu(demise_counter):
 
         if demise_counter == 0:
             menu_snd.play()
-            text_var = """Press Any Key to Make Iggy Run! 
-            Press the space bar or up key to jump and avoid getting hit by the kiwi bots! Don't let the flying books get you either!""" 
+            text_var = """Press Any Key to Make Iggy Run! Press the space bar or up key to jump!""" 
             start_text = game_font.render(text_var, True, (0,0,0))
         elif demise_counter > 0:
             game_over_snd.play()
