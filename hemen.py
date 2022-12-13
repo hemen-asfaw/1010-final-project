@@ -5,6 +5,7 @@ import random
 import sys
 import time
 pygame.init()
+pygame.mixer.init()#sounds
 
 screen_x = 1280
 screen_y = 720
@@ -13,6 +14,7 @@ game_name_display = pygame.display.set_caption("Iggy Runs!!")
 clock = pygame.time.Clock()
 speed_game = 9
 ground_start = 0
+
 
 
 
@@ -44,8 +46,13 @@ Grass = pygame.image.load(os.path.join("assets/grass.jpg"))
 
 game_font = pygame.font.Font("assets/Creampeach.ttf", 24)
 
+#sounds
 
-
+game_over_snd = pygame.mixer.Sound("assets/sounds/game.over.wav")
+jump_snd = pygame.mixer.Sound("assets/sounds/point.wav")
+theme_song_snd = pygame.mixer.Sound("assets/sounds/theme.song.wav")
+menu_snd = pygame.mixer.Sound("assets/sounds/intro.wav")
+roar_snd = pygame.mixer.Sound("assets/sounds/roar.wav")
 
 
 
@@ -64,6 +71,7 @@ class Iggy():
         self.current_image = 0 
         self.image = self.run_img[0]
         self.rect = self.image.get_rect(center=(self.x, self.y))
+        # self.set_sound()
 
     #In the update funcion we will put in the different actions of iggy that will change as game goes on 
     def update(self, inputs):
@@ -91,7 +99,13 @@ class Iggy():
     def display(self):
         screen.blit(self.image, self.rect)
 
+
+    # def set_sound(self):
+    #     path = os.path.join("assets/sounds/point.wav")
+    #     self.sound = pygame.mixer.Sound(path)
+
     def jump(self):
+        # self.sound.play()
         if self.iggy_jump:
             self.y -= self.gravity * 4
             self.gravity -= 0.5 # change speed of the jump
@@ -194,8 +208,10 @@ def main_function():
                 menu(demise_counter)
 
                 pygame.draw.rect(screen , (255, 0, 0), player.rect, 2)
+            theme_song_snd.play()
             if obstacle.rect.x < - obstacle.rect.width:
                 active_obstacles.pop()
+                
 
 
 
@@ -227,16 +243,21 @@ def main_function():
         
 
 def menu(demise_counter):
+    
     global points 
     while True:
+        
+
         screen.fill((255, 255, 255))
         # font = pygame.font.Font('freesansbold.ttf', 30)
 
         if demise_counter == 0:
+            menu_snd.play()
             text_var = """Press Any Key to Make Iggy Run! 
             Press the space bar or up key to jump and avoid getting hit by the kiwi bots! Don't let the flying books get you either!""" 
             start_text = game_font.render(text_var, True, (0,0,0))
         elif demise_counter > 0:
+            game_over_snd.play()
             start_text = game_font.render("Try Again? :(", True, (0, 0, 0))
             score = game_font.render("Iggy Points: " + str(points), True, (0, 0, 0))
             score_rect = score.get_rect()
@@ -258,7 +279,9 @@ def menu(demise_counter):
                 sys.exit() 
 
             if event.type == pygame.KEYDOWN:
+                roar_snd.play()
                 main_function()
+
 
 menu(demise_counter=0)
 
@@ -267,3 +290,6 @@ menu(demise_counter=0)
 
 #references 
 #https://youtu.be/ST-Qq3WBZBE
+
+
+#https://youtu.be/K6mJqSnwj1g sounds
