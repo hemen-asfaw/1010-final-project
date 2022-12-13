@@ -179,12 +179,20 @@ def main_function():
             elif spawn_rate == 1:
                 active_obstacles.append(Book())
 
-        print(active_obstacles)
+        
         for obstacle in active_obstacles:
             print(obstacle.rect.x)
             obstacle.display(screen)
             obstacle.update()
             if player.rect.colliderect(obstacle.rect):
+                
+                pygame.time.delay(2000)
+
+                speed_game = 9
+
+                demise_counter += 1
+                menu(demise_counter)
+
                 pygame.draw.rect(screen , (255, 0, 0), player.rect, 2)
             if obstacle.rect.x < - obstacle.rect.width:
                 active_obstacles.pop()
@@ -218,7 +226,41 @@ def main_function():
         pygame.display.update()
         
 
-main_function()
+def menu(demise_counter):
+    global points 
+    while True:
+        screen.fill((255, 255, 255))
+        # font = pygame.font.Font('freesansbold.ttf', 30)
+
+        if demise_counter == 0:
+            text_var = """Press Any Key to Make Iggy Run! 
+            Press the space bar or up key to jump and avoid getting hit by the kiwi bots! Don't let the flying books get you either!""" 
+            start_text = game_font.render(text_var, True, (0,0,0))
+        elif demise_counter > 0:
+            start_text = game_font.render("Try Again? :(", True, (0, 0, 0))
+            score = game_font.render("Iggy Points: " + str(points), True, (0, 0, 0))
+            score_rect = score.get_rect()
+            score_rect.center = (screen_x // 2, screen_y // 2 + 50)
+            screen.blit(score, score_rect)
+
+        text_rect = start_text.get_rect()
+        text_rect.center = (screen_x // 2, screen_y // 2)
+        screen.blit(start_text, text_rect)
+        screen.blit(Running[0], (screen_x // 2 - 20, screen_y // 2 - 140))
+        pygame.display.update()
+
+        for event in pygame.event.get(): 
+            # if event.type == pygame.QUIT:
+            #     run = False
+            if event.type == pygame.QUIT:
+                print("quitting")
+                pygame.quit()
+                sys.exit() 
+
+            if event.type == pygame.KEYDOWN:
+                main_function()
+
+menu(demise_counter=0)
 
 
         
