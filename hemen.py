@@ -1,3 +1,4 @@
+#REMINDER: remove print statemtnes we had for debudding  
 import pygame
 import os
 import random
@@ -10,23 +11,35 @@ screen_y = 720
 screen = pygame.display.set_mode((screen_x, screen_y))
 game_name_display = pygame.display.set_caption("Iggy Runs!!")
 clock = pygame.time.Clock()
-speed_game = 5
+speed_game = 9
 ground_start = 0
+
 
 
 Running =[]
 run1_image = pygame.image.load("assets/Running_1.PNG")
-scale_run1_image = pygame.transform.scale(run1_image,(300, 190))
+scale_run1_image = pygame.transform.scale(run1_image,(250, 140))
 Running.append(scale_run1_image) 
 
 run2_image = pygame.image.load("assets/running_2.PNG")
-scale_run2_image = pygame.transform.scale(run2_image,(300, 190))
+scale_run2_image = pygame.transform.scale(run2_image,(250, 140))
 Running.append(scale_run2_image)
 
 
-Obstacles = [pygame.image.load(os.path.join("assets", "kiki_bots.PNG")),
-                pygame.image.load(os.path.join("assets", "obstacle_1.PNG")),
-                pygame.image.load(os.path.join("assets", "obstacle_2.PNG"))]
+OBSTACLES = [] 
+
+kiwi_image = pygame.image.load("assets/kiki_bots.PNG") 
+kiwi_rescaled = pygame.transform.scale(kiwi_image,(100, 100))
+OBSTACLES.append(kiwi_rescaled)
+
+book1_image = pygame.image.load("assets/obstacle_1.PNG") 
+book1_rescaled = pygame.transform.scale(book1_image,(100, 100))
+OBSTACLES.append(book1_rescaled)
+
+book2_image = pygame.image.load("assets/obstacle_2.PNG") 
+book2_rescaled = pygame.transform.scale(book2_image,(100, 100))
+OBSTACLES.append(book2_rescaled)
+
 Grass = pygame.image.load(os.path.join("assets/grass.jpg"))
 
 game_font = pygame.font.Font("assets/Creampeach.ttf", 24)
@@ -66,6 +79,7 @@ class Iggy():
 
         self.rect.x = self.x
         self.rect.y = self.y
+
     #come back to this if problem with iggy appearing
     def run(self):
         self.current_image += 0.08 
@@ -78,23 +92,65 @@ class Iggy():
         screen.blit(self.image, self.rect)
 
     def jump(self):
-        #self.image = self.jump_img
         if self.iggy_jump:
             self.y -= self.gravity * 4
             self.gravity -= 0.5 # change speed of the jump
         if self.gravity < -(self.GRAVITY):
             self.iggy_jump = False
             self.gravity = self.GRAVITY
-    
+
+class Obstacles():
+
+    def __init__(self, type):
+        #image is for the what image we're adding 
+        #type is for the type of obstacle which is either kiwi or the book 
+        self.y = 250
+        self.x = 510
+        self.image = OBSTACLES[type] 
+        self.type = type 
+        self.rect = self.image.get_rect(center=(self.x, self.y))   
+        self.rect.x = screen_x
+
+    def update(self):
+        self.rect.x -= speed_game 
+
+    def display(self, screen):
+        screen.blit(self.image, self.rect)
 
 
+class kiwibot(Obstacles):
+    def __init__(self):
+        # self.type = OBSTACLES[0]
+        super().__init__(0)
+        self.rect.y = 550
+
+
+class Book(Obstacles):
+    def __init__(self): 
+        super().__init__(random.randint(1,2))
+        self.rect.y = 400
 
 
 def main_function(): 
     global speed_game, ground_start, points 
     player = Iggy()
     points = 0
-    
+    active_obstacles = [] # List of obstacles on the screen at any given moment 
+    demise_counter  = 0
+
+
+
+
+    def score():
+        global points, speed_game
+        points +=1
+        if points % 100 == 0 :
+            speed_game += 1   
+        text = game_font.render("Points: "+ str(points), True, (0,0,0))
+        textRect = text.get_rect()
+        textRect.center = (1000, 40)
+        screen.blit(text, textRect)
+        
     
 
     
@@ -115,10 +171,31 @@ def main_function():
         screen.fill("light blue")
         player.display()
         player.update(player_input)
+
+        if len(active_obstacles) == 0:
+            spawn_rate = random.randint(0,2)
+            if spawn_rate == 0:
+                active_obstacles.append(kiwibot())
+            elif spawn_rate == 1:
+                active_obstacles.append(Book())
+
+        print(active_obstacles)
+        for obstacle in active_obstacles:
+            print(obstacle.rect.x)
+            obstacle.display(screen)
+            obstacle.update()
+            if player.rect.colliderect(obstacle.rect):
+                pygame.draw.rect(screen , (255, 0, 0), player.rect, 2)
+            if obstacle.rect.x < - obstacle.rect.width:
+                active_obstacles.pop()
+
+
+
+
         
  
         ground_rescaled = pygame.transform.scale(Grass, (1280,100))
-        #ground_rect = ground_rescaled.get_rect(center=(640,690))
+           #ground_rect = ground_rescaled.get_rect(center=(640,690))
 
         speed_game += 0.0025
 
@@ -131,9 +208,18 @@ def main_function():
         #the if statement keeps the ground running on an infinate loop
         if ground_start <= -1280:
             ground_start = 0
+        score()
+
+  
+
+
+
+
         pygame.display.update()
+        
 
 main_function()
+
 
         
 
